@@ -1,7 +1,6 @@
 setwd("~/Antibiotic Cycling")
-library(ocean)
-library(expm)
 
+cutoff = 0.001 # Growth rate at or above which better antibiotic sought
 antibiotics = c('AMP','AM','CEC','CTX','ZOX','CXM','CRO','AMC', 'CAZ','CTT','SAM','CPR','CPD','TZP','FEP')
 genotypes = c('0000','1000','0100','0010','0001','1100','1010','1001','0110','0101','0011','1110', '1101','1011','0111','1111')
 
@@ -24,14 +23,14 @@ import_adj_mat <- function(ab){
 cpm <- function(ab, gr=growth_rates){
   print(gr)
   adj_mat <- import_adj_mat(ab)
-  subt_mat <- matrix(0, nrow=16, ncol=16)
+  subt_mat <- matrix(0, nrow=ncol(adj_mat), ncol=ncol(adj_mat))
   for(u in 1:nrow(subt_mat)){
     for(v in 1:ncol(subt_mat)){
       print(gr[ab,v])
       if(adj_mat[u,v] == 1 && gr[ab, v] > gr[ab, u]){
         num = gr[ab, v] - gr[ab, u]
         denom = 0
-        for(j in 1:16){
+        for(j in 1:ncol(adj_mat)){
           if(adj_mat[u,j] == 1 && gr[ab,j] > gr[ab,u]){
             denom = denom + gr[ab,j] - gr[ab,u]
           }
@@ -73,7 +72,7 @@ expected_gr <- function(state, ab, gr=growth_rates){
   return(ex_gr)
 }
 
-adaptive_optimization <- function(state,gr_cutoff=0.001,ab_list=antibiotics,gr=growth_rates){
+adaptive_optimization <- function(state,gr_cutoff=cutoff,ab_list=antibiotics,gr=growth_rates){
   min_gr <- Inf
   best_ab <- NA
   gr_vec <- c()
@@ -95,7 +94,7 @@ adaptive_optimization <- function(state,gr_cutoff=0.001,ab_list=antibiotics,gr=g
   return(c(best_ab, min_gr))
 }
 
-adaptive_cycling <- function(initial_state, num_cycles, gr_cutoff=0.001, ab_list=antibiotics,gr=growth_rates){
+adaptive_cycling <- function(initial_state, num_cycles, gr_cutoff=cutoff, ab_list=antibiotics,gr=growth_rates){
   adaptive_seq <- c()
   seq_growth_rates <- c()
   while(length(adaptive_seq) < num_cycles){
@@ -145,7 +144,7 @@ plot_cycles <- function(ab_seq,initial_state,combine_cycle=F,long_period=F,num_c
     }
   }
   
-  colors <- jet.colors(16)
+  colors <- jet.colors(length(genotypes))
   barplot(plot_info,col=colors,space=c(.1,.1),xlab=xlab,ylab=ylab,las=1)
   if(legend){
     legend("topright", inset=c(-0.06,-.05), genotypes, bty="n", fill=colors,xpd=NA)
@@ -168,13 +167,13 @@ plot_growth_rates <- function(ab_seq, initial_state){
     growth_rates <- c(growth_rates, gr)
     initial_state <- initial_state %*% cpm(ab)
   }
-  plot(growth_rates, pch=16, type="o", xlim=c(0,length(ab_seq)), xlab="", xaxt="n", yaxt="n", ylab=expression("expected growth rate"%*%10^-3), ylim=c(0,0.002))
+  plot(growth_rates, pch=ncol(growth_rates), type="o", xlim=c(0,length(ab_seq)), xlab="", xaxt="n", yaxt="n", ylab=expression("expected growth rate"%*%10^-3), ylim=c(0,0.002))
   ticks <- c(0.0, 0.5, 1.0, 1.5, 2.0)
   axis(2, at = ticks / 1000, labels = format(ticks, format="f", digits=2))
 }
 
 find_max_cost <- function(ab, initial_geno, onset_step){
-  initial_state <- rep(0, 16)
+  initial_state <- rep(0, length(genotypes))
   #find the index of the initial_geno in the vector genotypes.
   #this will give the position of the initial state that should
   #be a 1
