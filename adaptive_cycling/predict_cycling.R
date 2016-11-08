@@ -25,8 +25,11 @@ predict_cycle <- function(seq, initial_state, gr=growth_rates, ab_list = antibio
   for(ab in ab_list){
     M_ab <- cpm(ab, gr=gr)
     M_ab_eq <- eq_mat(M_ab)
-    ab_gr <- expected_gr(initial_state, ab, gr=gr)
+    ab_gr <- expected_gr(initial_state %*% M_ab_eq, ab, gr=gr)
+    # print(ab)
+    # print(ab_gr)
     if(ab_gr < seq_avg_gr){
+      
       better_abs <- c(better_abs, ab)
     }
   }
