@@ -1,6 +1,7 @@
-setwd("~/Antibiotic Cycling")
+#setwd("~/Antibiotic Cycling")
+library(expm)
 
-cutoff = 0.001 # Growth rate at or above which better antibiotic sought
+cutoff <- 0.001 # Growth rate at or above which better antibiotic sought
 antibiotics = c('AMP','AM','CEC','CTX','ZOX','CXM','CRO','AMC', 'CAZ','CTT','SAM','CPR','CPD','TZP','FEP')
 genotypes = c('0000','1000','0100','0010','0001','1100','1010','1001','0110','0101','0011','1110', '1101','1011','0111','1111')
 
@@ -21,12 +22,12 @@ import_adj_mat <- function(ab){
 ## according to the correlated probability model                               ##
 ## --- as of now, this does not have immigration probability --- ##
 cpm <- function(ab, gr=growth_rates){
-  print(gr)
+	#  print(gr)
   adj_mat <- import_adj_mat(ab)
   subt_mat <- matrix(0, nrow=ncol(adj_mat), ncol=ncol(adj_mat))
   for(u in 1:nrow(subt_mat)){
     for(v in 1:ncol(subt_mat)){
-      print(gr[ab,v])
+		#      print(gr[ab,v])
       if(adj_mat[u,v] == 1 && gr[ab, v] > gr[ab, u]){
         num = gr[ab, v] - gr[ab, u]
         denom = 0
