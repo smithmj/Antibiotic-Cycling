@@ -22,15 +22,17 @@ import_adj_mat <- function(ab){
 ## according to the correlated probability model                               ##
 ## --- as of now, this does not have immigration probability --- ##
 cpm <- function(ab, gr=growth_rates){
+  print(gr)
   adj_mat <- import_adj_mat(ab)
   subt_mat <- matrix(0, nrow=16, ncol=16)
   for(u in 1:nrow(subt_mat)){
     for(v in 1:ncol(subt_mat)){
+      print(gr[ab,v])
       if(adj_mat[u,v] == 1 && gr[ab, v] > gr[ab, u]){
         num = gr[ab, v] - gr[ab, u]
         denom = 0
         for(j in 1:16){
-          if(adj_mat[u,j]== 1 && gr[ab,j] > gr[ab,u]){
+          if(adj_mat[u,j] == 1 && gr[ab,j] > gr[ab,u]){
             denom = denom + gr[ab,j] - gr[ab,u]
           }
         }
@@ -95,22 +97,22 @@ adaptive_optimization <- function(state,gr_cutoff=0.001,ab_list=antibiotics,gr=g
 
 adaptive_cycling <- function(initial_state, num_cycles, gr_cutoff=0.001, ab_list=antibiotics,gr=growth_rates){
   adaptive_seq <- c()
-  growth_rates <- c()
+  seq_growth_rates <- c()
   while(length(adaptive_seq) < num_cycles){
     opt_info <- adaptive_optimization(initial_state,gr_cutoff=gr_cutoff,ab_list=ab_list,gr=gr)
     best_ab <- opt_info[1]
     adaptive_seq <- c(adaptive_seq, best_ab)
     ex_gr <- opt_info[2]
-    growth_rates <- c(growth_rates, ex_gr)
+    seq_growth_rates <- c(seq_growth_rates, ex_gr)
     initial_state <- initial_state %*% cpm(best_ab, gr=gr)
     while(ex_gr <= gr_cutoff && length(adaptive_seq) < num_cycles){
       adaptive_seq <- c(adaptive_seq, best_ab)
       initial_state <- initial_state %*% cpm(best_ab)
       ex_gr <- expected_gr(initial_state, best_ab, gr=gr)
-      growth_rates <- c(growth_rates, ex_gr)
+      seq_growth_rates <- c(seq_growth_rates, ex_gr)
     }
   }
-  adaptive_list <- list(adaptive_seq, growth_rates, initial_state)
+  adaptive_list <- list(adaptive_seq, seq_growth_rates, initial_state)
   return(adaptive_list)
 }
 
