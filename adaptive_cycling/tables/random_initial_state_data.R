@@ -1,36 +1,32 @@
 setwd("~/Antibiotic Cycling") 
 source(file="cycling.R")
 
-random_states <- as.matrix(read.table("adaptive_cycling/tables/random_initial_states_1000.txt", sep=",", nrows=1000))
+#for(i in 1:length(genotypes)){
+#  print(genotypes[i])
+#  initial_state <- rep(0, 16)
+#  initial_state[i] <- 1
+#  adaptive_list <- adaptive_cycling(initial_state, 1000)
+#  class(adaptive_list)
+#  adaptive_seq <- adaptive_list[[1]]
+#  seq_growth_rates <- as.numeric(adaptive_list[[2]])
+#  final_state <- adaptive_list[[3]]
+#}
 
-sequences <- c()
+final_state_mat <- matrix(0, nrow=1000, ncol=16)
 avg_growth_rates <- c()
-max_growth_rates <- c()
-seq_len <- 300
-final_state_matrix <- matrix(0, nrow=seq_len, ncol=16)
-for(i in 1:nrow(random_states)){
-  print(i)
-  adaptive_list <- adaptive_cycling(random_states[1,], seq_len)
+random_initial_states <- read.table("adaptive_cycling/tables/random_initial_states_1000.txt", sep=",")
+for(i in 1:nrow(random_initial_states)){
+  initial_state <- as.matrix(random_initial_states[i,])
+  print(initial_state)
+  adaptive_list <- adaptive_cycling(initial_state, 1000)
   adaptive_seq <- adaptive_list[[1]]
-  sequences <- c(sequences, adaptive_seq)
   seq_growth_rates <- as.numeric(adaptive_list[[2]])
-  avg_growth_rates <- c(avg_growth_rates, mean(seq_growth_rates[seq_len-100:seq_len]))
-  max_growth_rates <- c(max_growth_rates, max(seq_growth_rates[seq_len-100:seq_len]))
+  l <- length(seq_growth_rates)
+  avg_gr <- seq_growth_rates[l-100:l]
+  avg_growth_rates <- c(avg_growth_rates, avg_gr)
   final_state <- adaptive_list[[3]]
   print(final_state)
-  final_state_matrix[i,] <- final_state
+  final_state_mat[i,] <- final_state
 }
 
-sequences_table <- as.table(matrix(sequences, nrow=seq_len))
-print("mean growth rates:")
-print(mean(avg_growth_rates))
-print("max growth rates:")
-print(mean(max_growth_rates))
-avg_final_state <- colMeans(final_state_matrix)
-print(avg_final_state)
-final_state_sd <- apply(final_state_matrix, 2, sd)
-print(final_state_sd)
-
-#for each state, need to save the equilibrium growth rate over the last 100,
-#the max growth rate over the last 100, and the sequence so that you
-#can find the onset step manually later
+                                 
