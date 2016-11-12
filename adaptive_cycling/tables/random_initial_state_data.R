@@ -29,4 +29,9 @@ for(i in 1:nrow(random_initial_states)){
   final_state_mat[i,] <- final_state
 }
 
+# find the average equilibrium distribution across all the initial states
+colMeans(final_state_mat)
+# find the standard deviation of the equilbrium distribution across all the initial states
+apply(final_state_mat, 2, sd)
+
                                  
