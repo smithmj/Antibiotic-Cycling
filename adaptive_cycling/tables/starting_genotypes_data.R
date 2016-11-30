@@ -11,6 +11,3 @@ for(i in 1:length(genotypes)){
   seq_growth_rates <- as.numeric(adaptive_list[[2]])
   final_state <- adaptive_list[[3]]
 }
-
-
-                                 

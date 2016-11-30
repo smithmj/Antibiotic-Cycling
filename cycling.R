@@ -112,7 +112,7 @@ adaptive_cycling <- function(initial_state, num_cycles, gr_cutoff=cutoff, ab_lis
       seq_growth_rates <- c(seq_growth_rates, ex_gr)
     }
   }
-  adaptive_list <- list(adaptive_seq, seq_growth_rates, initial_state)
+  adaptive_list <- list(adaptive_seq, as.numeric(seq_growth_rates), initial_state)
   return(adaptive_list)
 }
 
@@ -190,8 +190,6 @@ find_max_cost <- function(ab, initial_geno, onset_step){
     gr <- expected_gr(initial_state, ab)
     fixed_grs <- c(fixed_grs, gr)
   }
-  print("fixed_grs")
-  print(fixed_grs)
   diff_grs <- fixed_grs - adaptive_grs
   return(max(diff_grs))
 }
