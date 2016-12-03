@@ -2,7 +2,7 @@ setwd("~/Antibiotic Cycling")
 source(file="cycling.R")
 
 random_initial_states <- read.table("adaptive_cycling/tables/random_initial_states_1000.txt", sep=",")
-num_cycles <- 1000
+num_cycles <- nrow(random_initial_states)
 
 ### adaptive cycling ###
 cycle_length <- 1000 # must be greater than 100
@@ -10,8 +10,8 @@ final_state_mat <- matrix(0, nrow=num_cycles, ncol=16)
 avg_growth_rates <- c()
 adaptive_seq_mat <- matrix(0, nrow=num_cycles, ncol=cycle_length)
 for(i in 1:nrow(random_initial_states)){
+  print(i)
   initial_state <- as.matrix(random_initial_states[i,])
-  print(initial_state)
   adaptive_list <- adaptive_cycling(initial_state, cycle_length)
   adaptive_seq <- adaptive_list[[1]]
   adaptive_seq_mat[i,] <- adaptive_seq

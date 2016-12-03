@@ -22,18 +22,28 @@ find_convergence_step <- function(vec){
 find_costs <- function(initial_state, monotherapy_ab, adaptive_seq_length = 1000){
   ## find longterm cost
   # find monotherapy equilibrium growth rate
-  ab_eq_state <- initial_state %*% eq_mat(cpm(monotherapy_ab))
-  ab_eq_gr <- expected_gr(ab_eq_state, monotherapy_ab)
+  state <- initial_state 
+  ab_grs <- c()
+  for(i in 1:adaptive_seq_length){
+    state <- state %*% cpm(monotherapy_ab)
+    ab_gr <- expected_gr(state, monotherapy_ab)
+    ab_grs <- c(ab_grs, ab_gr)
+  }
+  AMC_eq_gr <- ab_grs[adaptive_seq_length]
+  print(AMC_eq_gr)
   # find adaptive sequence equilibrium growth rate
   adaptive_info <- adaptive_cycling(initial_state, adaptive_seq_length)
   adaptive_grs <- adaptive_info[[2]]
   adaptive_eq_gr <- adaptive_grs[adaptive_seq_length]
+  print(adaptive_eq_gr)
   # longterm cost = (AMC monotherapy equilibrium growth rate) - (adaptive sequence equilibrium growth rate)
   longterm_cost <- AMC_eq_gr - adaptive_eq_gr
   
   ## find transient cost
   transient_cost <- 0
-  convergence_step <- find_convergence_step(adaptive_grs)
+  ab_convergence_step <- find_convergence_step(ab_grs)
+  adaptive_convergence_step <- find_convergence_step(adaptive_grs)
+  convergence_step <- max(ab_convergence_step, adaptive_convergence_step)
   state <- initial_state
   for(n in 1:convergence_step){
     state <- state %*% cpm("AMC")
@@ -51,7 +61,7 @@ for(geno in genotypes){
   initial_state <- rep(0, 16)
   i <- match(geno, genotypes)
   initial_state[i] <- 1
-  costs <- find_costs(initial_state, "AMC")
+  costs <- find_costs(initial_state, "AMC", adaptive_seq_length = 1000)
   longterm_costs <- c(longterm_costs, costs[1])
   transient_costs <- c(transient_costs, costs[2])
 }
@@ -60,20 +70,23 @@ names(transient_costs) <- genotypes
 
 ### calculate costs for random initial states###
 random_initial_states <- read.table("adaptive_cycling/tables/random_initial_states_1000.txt", sep=",")
-num_cycles <- 1000
 
-longterm_costs <- c()
-transient_costs <- c()
+rand_is_longterm_costs <- c()
+rand_is_transient_costs <- c()
 for(i in 1:nrow(random_initial_states)){
   print(i)
   initial_state <- as.matrix(random_initial_states[i,])
-  costs_vec <- find_costs(initial_state, "AMC", adaptive_seq_length=300)
-  longterm_costs <-  c(longterm_costs, costs_vec[1])
-  transient_costs <- c(transient_costs, costs_vec[2])
+  costs_vec <- find_costs(initial_state, "AMC", adaptive_seq_length=1000)
+  print("longterm cost")
+  print(costs_vec[1])
+  print("transient cost")
+  print(costs_vec[2])
+  rand_is_longterm_costs <-  c(rand_is_longterm_costs, costs_vec[1])
+  rand_is_transient_costs <- c(rand_is_transient_costs, costs_vec[2])
 }
 
-mean(longterm_costs)
-sd(longterm_costs)
+mean(rand_is_longterm_costs)
+sd(rand_is_longterm_costs)
 
-mean(transient_costs)
-sd(transient_costs)
+mean(rand_is_transient_costs)
+sd(rand_is_transient_costs)

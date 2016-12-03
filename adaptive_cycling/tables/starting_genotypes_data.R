@@ -1,6 +1,7 @@
 setwd("~/Antibiotic Cycling") 
 source(file="cycling.R")
 
+final_state_mat <- matrix(0, nrow=length(genotypes), ncol=16)
 for(i in 1:length(genotypes)){
   print(genotypes[i])
   initial_state <- rep(0, 16)
@@ -11,3 +12,4 @@ for(i in 1:length(genotypes)){
   seq_growth_rates <- as.numeric(adaptive_list[[2]])
   final_state <- adaptive_list[[3]]
 }
+
