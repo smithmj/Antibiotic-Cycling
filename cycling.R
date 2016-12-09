@@ -1,5 +1,6 @@
 #setwd("~/Antibiotic Cycling")
 library(expm)
+library(viridis)
 
 cutoff <- 0.001 # Growth rate at or above which better antibiotic sought
 antibiotics = c('AMP','AM','CEC','CTX','ZOX','CXM','CRO','AMC', 'CAZ','CTT','SAM','CPR','CPD','TZP','FEP')
@@ -145,7 +146,8 @@ plot_cycles <- function(ab_seq,initial_state,combine_cycle=F,long_period=F,num_c
     }
   }
   
-  colors <- jet.colors(length(genotypes))
+  #colors <- viridis(length(genotypes))
+  colors <- c("#B550A8", "#BE4F8E", "#BD556E", "#B45F47", "#A66A00", "#917400", "#767E00", "#508500", "#008B34", "#008F5E", "#00907F", "#008D9B", "#0086B1", "#2F7BBF", "#786BC2", "#9E5BBA")
   barplot(plot_info,col=colors,space=c(.1,.1),xlab=xlab,ylab=ylab,las=1)
   if(legend){
     legend("topright", inset=c(-0.06,-.05), genotypes, bty="n", fill=colors,xpd=NA)
